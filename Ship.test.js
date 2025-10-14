@@ -1,59 +1,46 @@
-import Ship from "./Ship.js";
-
-test("Ship registers hits", () => {
-  const ship = new Ship(3);
-  ship.hit();
-  expect(ship.hits).toBe(1);
-});
-test("Ship is sunk when hits reach length", () => {
-  const ship = new Ship(2);
-  ship.hit();
-  ship.hit();
-  expect(ship.isSunk()).toBe(true);
-});
-
 // ship.test.js
 
-describe("Ship Factory", () => {
-  // A standard ship object for testing
-  let testShip;
+import Ship from "./Ship.js"; // Import your new class
 
-  // Setup runs before each test to ensure a clean slate
+describe("Ship Class", () => {
+  let testShip;
+  const shipLength = 3;
+
+  // Set up a new ship instance before every test
   beforeEach(() => {
-    // Creating a ship of length 3 (e.g., a Destroyer)
-    testShip = createShip(3);
+    testShip = new Ship(shipLength);
   });
 
-  // --- Test 1: Hit function increases hit count ---
-  test("hit() increases the number of hits", () => {
-    // ARRANGE: Ship is already created in beforeEach
-    // ACT: Call the hit function once
+  // --- Test 1: hit() increases hit count (using the public getter) ---
+  test("hit() increases the number of hits and reports it correctly", () => {
+    // ACT
+    testShip.hit();
+    testShip.hit();
+    testShip.hit();
     testShip.hit();
 
-    // ASSERT: Check that the number of hits is now 1
-    expect(testShip.getHits()).toBe(1);
+    // ASSERT: Use the public getter method
+    expect(testShip.getHits()).toBe(4);
   });
 
   // --- Test 2: Ship is NOT sunk when hits < length ---
-  test("isSunk() returns false if not enough hits received", () => {
-    // ARRANGE: Ship is length 3.
-    // ACT: Hit the ship twice
+  test("isSunk() returns false if hits are less than length", () => {
+    // ARRANGE: Hit the ship twice (less than length 3)
     testShip.hit();
     testShip.hit();
 
-    // ASSERT: Ship should not be sunk yet
+    // ASSERT
     expect(testShip.isSunk()).toBe(false);
   });
 
-  // --- Test 3: Ship IS sunk when hits >= length ---
-  test("isSunk() returns true when hits are equal to or greater than length", () => {
-    // ARRANGE: Ship is length 3.
-    // ACT: Hit the ship 3 times (its full length)
+  // --- Test 3: Ship IS sunk when hits == length ---
+  test("isSunk() returns true when hits are equal to length", () => {
+    // ARRANGE: Hit the ship 3 times (its full length)
     testShip.hit();
     testShip.hit();
     testShip.hit();
 
-    // ASSERT: Ship should now be sunk
+    // ASSERT
     expect(testShip.isSunk()).toBe(true);
   });
 });
