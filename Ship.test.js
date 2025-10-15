@@ -17,10 +17,9 @@ describe("Ship Class", () => {
     testShip.hit();
     testShip.hit();
     testShip.hit();
-    testShip.hit();
 
     // ASSERT: Use the public getter method
-    expect(testShip.getHits()).toBe(4);
+    expect(testShip.getHits()).toBe(3);
   });
 
   // --- Test 2: Ship is NOT sunk when hits < length ---
