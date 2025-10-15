@@ -18,6 +18,9 @@ class Ship {
   getHits() {
     return this.#hits;
   }
+  get length() {
+    this.#length;
+  }
 
   isSunk() {
     return this.#hits >= this.#length;
