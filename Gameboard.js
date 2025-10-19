@@ -1,16 +1,134 @@
-// Actions:
-// place ships at specific coordinates
-// receiveAttack function that: When there's attack,
-// if there's a ship - send "hit"
-// no ship? add to miss list
-// Missed shots: array that check
-// areAllShipsSunk
+import Ship from "./Ship.js";
 
-// should include:
-// 1. len
-//2. hit count
-// 3. sunk?
+class Gameboard {
+  // Private fields for internal state (best practice for encapsulation)
+  #size;
+  #grid;
+  #missedAttacks = [];
+  #ships = [];
 
-class Gameboard {}
+  /**
+   * Initializes a new Gameboard instance.
+   * @param {number} size - The side length of the square board (default 10).
+   */
+  constructor(size = 10) {
+    this.#size = size;
+    // Initialize the grid as a flat array filled with null
+    this.#grid = new Array(size * size).fill(null);
+  }
+
+  // --- Private Helper ---
+  /**
+    // for examples:
+        // (3, 5) will output the sqaure: 53!  
+  */
+  #coordsToIndex(x, y) {
+    // check boundries from 0-9
+    if (x < 0 || x >= this.#size || y < 0 || y >= this.#size) {
+      return -1; // Out of bounds
+    }
+    // changes x,y to --> a number/index from 1-100
+
+    return y * this.#size + x;
+  }
+
+  // --- Public Methods ---
+
+
+  placeShip(ship, startX, startY, orientation) {
+    // 1. Validation Check (pre-flight check)
+    for (let i = 0; i < ship.length; i++) {
+      let x = startX;
+      let y = startY;
+
+      if (orientation === "horizontal") {
+        x = startX + i;
+      } else if (orientation === "vertical") {
+        y = startY + i;
+      }
+
+      const index = this.#coordsToIndex(x, y);
+
+      if (index === -1 || this.#grid[index] !== null) {
+        return false; // Invalid placement
+      }
+    }
+
+    // 2. Execution (Place the ship parts)
+    for (let i = 0; i < ship.length; i++) {
+      let x = startX;
+      let y = startY;
+
+      if (orientation === "horizontal") {
+        x = startX + i;
+      } else if (orientation === "vertical") {
+        y = startY + i;
+      }
+
+      const index = this.#coordsToIndex(x, y);
+
+      this.#grid[index] = {
+        ship: ship,
+        index: i, // Part index (0, 1, 2...)
+      };
+    }
+
+    this.#ships.push(ship);
+    return true; // Placement successful
+  }
+
+  /**
+   * Receives an attack at specific coordinates (x, y).
+   */
+  receiveAttack(x, y) {
+    const index = this.#coordsToIndex(x, y);
+
+    if (index === -1) {
+      return false; // Out of bounds
+    }
+
+    const cell = this.#grid[index];
+
+    // Check if shot is illegal (already hit or already missed)
+    if (cell === "miss" || (cell !== null && cell.wasHit)) {
+      return false;
+    }
+
+    if (cell && cell.ship) {
+      // HIT SCENARIO: Call the ship's public method
+      cell.ship.hit();
+      cell.wasHit = true;
+      return true;
+    } else {
+      // MISS SCENARIO: Mark the cell and record the coordinates
+      this.#grid[index] = "miss";
+      this.#missedAttacks.push({ x, y });
+      return true;
+    }
+  }
+
+  /**
+   * Checks if every single ship placed on the board is sunk.
+   */
+  allShipsSunk() {
+    // Check if any ships exist AND if ALL of them are sunk using Array.every()
+    return this.#ships.length > 0 && this.#ships.every((ship) => ship.isSunk());
+  }
+
+  // --- Public Getters (Necessary for Testing and UI) ---
+
+  getGrid() {
+    return this.#grid;
+  }
+
+  getMissedAttacks() {
+    return this.#missedAttacks;
+  }
+
+  // Expose the helper for external use (like in tests or the UI module)
+  coordsToIndex(x, y) {
+    return this.#coordsToIndex(x, y);
+  }
+}
 
 export default Gameboard;

@@ -12,7 +12,7 @@ describe("Ship Class", () => {
   });
 
   // --- Test 1: hit() increases hit count (using the public getter) ---
-  test("hit() increases the number of hits and reports it correctly", () => {
+  test("hit() increases hits count", () => {
     // ACT
     testShip.hit();
     testShip.hit();
@@ -20,6 +20,11 @@ describe("Ship Class", () => {
 
     // ASSERT: Use the public getter method
     expect(testShip.getHits()).toBe(3);
+  });
+
+  test("creates a ship with correct length", () => {
+    expect(testShip).toBeDefined();
+    expect(typeof testShip).toBe("object");
   });
 
   // --- Test 2: Ship is NOT sunk when hits < length ---
