@@ -1,39 +1,31 @@
 import Ship from "./Ship.js";
 
 class Gameboard {
-  // Private fields for internal state (best practice for encapsulation)
+  // Private fields (encapsulation)
   #size;
   #grid;
   #missedAttacks = [];
   #ships = [];
 
-  /**
-   * Initializes a new Gameboard instance.
-   * @param {number} size - The side length of the square board (default 10).
-   */
+  // /**
+  //  * Initializes a new Gameboard instance.
+  //  * @param {number} size
+  //  */
   constructor(size = 10) {
     this.#size = size;
-    // Initialize the grid as a flat array filled with null
+
     this.#grid = new Array(size * size).fill(null);
   }
 
-  // --- Private Helper ---
-  /**
-    // for examples:
-        // (3, 5) will output the sqaure: 53!  
-  */
   #coordsToIndex(x, y) {
-    // check boundries from 0-9
+    // check boundries 0-9
     if (x < 0 || x >= this.#size || y < 0 || y >= this.#size) {
-      return -1; // Out of bounds
+      return -1; // -1 = error
     }
     // changes x,y to --> a number/index from 1-100
-
+    // helps us get the exact index
     return y * this.#size + x;
   }
-
-  // --- Public Methods ---
-
 
   placeShip(ship, startX, startY, orientation) {
     // 1. Validation Check (pre-flight check)
@@ -47,8 +39,14 @@ class Gameboard {
         y = startY + i;
       }
 
+      // entering a loop
+      // checking every x / y
+      // in order to check if out of bound or not
       const index = this.#coordsToIndex(x, y);
 
+      // 2 errors option:
+      // 1) no from 0-9 so returns -1
+      // 2) the cell isn't null - so isn't availble for placement
       if (index === -1 || this.#grid[index] !== null) {
         return false; // Invalid placement
       }
@@ -67,12 +65,14 @@ class Gameboard {
 
       const index = this.#coordsToIndex(x, y);
 
+      // here: we're replacing NULL val with new ship obj
+      // inside every valid cell we save the relevant ship object
       this.#grid[index] = {
         ship: ship,
         index: i, // Part index (0, 1, 2...)
       };
     }
-
+    // outside the loop we insert the ship for inspection
     this.#ships.push(ship);
     return true; // Placement successful
   }
