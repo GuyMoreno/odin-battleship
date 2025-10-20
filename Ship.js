@@ -19,7 +19,7 @@ class Ship {
     return this.#hits;
   }
   get length() {
-    this.#length;
+    return this.#length;
   }
 
   isSunk() {

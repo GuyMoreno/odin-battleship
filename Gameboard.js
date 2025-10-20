@@ -69,7 +69,8 @@ class Gameboard {
       // inside every valid cell we save the relevant ship object
       this.#grid[index] = {
         ship: ship,
-        index: i, // Part index (0, 1, 2...)
+        // the index says which part of the ship
+        index: i,
       };
     }
     // outside the loop we insert the ship for inspection
@@ -77,23 +78,23 @@ class Gameboard {
     return true; // Placement successful
   }
 
-  /**
-   * Receives an attack at specific coordinates (x, y).
-   */
   receiveAttack(x, y) {
     const index = this.#coordsToIndex(x, y);
 
     if (index === -1) {
-      return false; // Out of bounds
+      return false;
     }
 
     const cell = this.#grid[index];
 
-    // Check if shot is illegal (already hit or already missed)
+    // Check if shot is illegal
+    // (already hit or already missed)
     if (cell === "miss" || (cell !== null && cell.wasHit)) {
       return false;
     }
 
+    // if cell isn't empty
+    // if cell has ship inside
     if (cell && cell.ship) {
       // HIT SCENARIO: Call the ship's public method
       cell.ship.hit();
@@ -107,9 +108,6 @@ class Gameboard {
     }
   }
 
-  /**
-   * Checks if every single ship placed on the board is sunk.
-   */
   allShipsSunk() {
     // Check if any ships exist AND if ALL of them are sunk using Array.every()
     return this.#ships.length > 0 && this.#ships.every((ship) => ship.isSunk());
