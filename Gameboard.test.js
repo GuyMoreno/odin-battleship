@@ -1,6 +1,7 @@
 // import the classes
 import Gameboard from "./Gameboard.js";
 import Ship from "./Ship.js";
+import { BOARD_SIZE } from "./constants.js";
 
 // use describe for organization
 describe("Gameboard Class", () => {
@@ -9,7 +10,7 @@ describe("Gameboard Class", () => {
   const shipLength = 3;
 
   beforeEach(() => {
-    testBoard = new Gameboard(10);
+    testBoard = new Gameboard(BOARD_SIZE);
     testShip = new Ship(shipLength);
   });
 

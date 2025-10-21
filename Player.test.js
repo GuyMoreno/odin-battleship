@@ -1,6 +1,7 @@
 import Gameboard from "./Gameboard.js";
 import Ship from "./Ship.js";
 import Player from "./Player.js";
+import { BOARD_SIZE } from "./constants.js";
 
 //  describe for organization
 describe("Player Class TDD", () => {
@@ -9,7 +10,7 @@ describe("Player Class TDD", () => {
 
   beforeEach(() => {
     player1 = new Player(false); // human
-    enemyBoard = new Gameboard(10);
+    enemyBoard = new Gameboard(BOARD_SIZE);
   });
 
   test("attack() should successfully call receiveAttack on enemy board", () => {
@@ -22,10 +23,10 @@ describe("Player Class TDD", () => {
   //ss
   test("randomAttack() should choose a legal, unshot coordinate", () => {
     const computer = new Player(true);
-    const enemyBoard = new Gameboard(10);
+    const enemyBoard = new Gameboard(BOARD_SIZE);
 
     // in purpose choose a spot and check if
-    // the computer won't choose it, if he skip it. 
+    // the computer won't choose it, if he skip it.
     enemyBoard.receiveAttack(5, 5);
 
     // every randomAttack should not shot on (5,5)

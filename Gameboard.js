@@ -1,4 +1,5 @@
 import Ship from "./Ship.js";
+import { BOARD_SIZE } from "./constants.js";
 
 class Gameboard {
   // Private fields (encapsulation)
@@ -11,7 +12,7 @@ class Gameboard {
   //  * Initializes a new Gameboard instance.
   //  * @param {number} size
   //  */
-  constructor(size = 10) {
+  constructor(size = BOARD_SIZE) {
     this.#size = size;
 
     this.#grid = new Array(size * size).fill(null);
@@ -126,6 +127,10 @@ class Gameboard {
   // Expose the helper for external use (like in tests or the UI module)
   coordsToIndex(x, y) {
     return this.#coordsToIndex(x, y);
+  }
+
+  getShips() {
+    return this.#ships;
   }
 }
 

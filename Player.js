@@ -1,4 +1,6 @@
 import Gameboard from "./Gameboard.js";
+import { BOARD_SIZE } from "./constants.js";
+
 class Player {
   #gameboard;
   // true/false
@@ -6,7 +8,7 @@ class Player {
   #shotsTaken = [];
 
   constructor(isComputer = false) {
-    this.#gameboard = new Gameboard(10);
+    this.#gameboard = new Gameboard(BOARD_SIZE);
     this.#isComputer = isComputer;
   }
 
