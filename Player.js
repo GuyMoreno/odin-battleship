@@ -22,9 +22,12 @@ class Player {
 
     // loop till find a valid move
     while (!attackSuccess) {
+      // looking for a rand num 0-9
+      // for x, y cordi
       x = Math.floor(Math.random() * 10);
       y = Math.floor(Math.random() * 10);
 
+      // if reciveAttack returns true:
       if (enemyBoard.receiveAttack(x, y)) {
         attackSuccess = true;
 
