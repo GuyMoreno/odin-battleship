@@ -8,23 +8,15 @@ class Gameboard {
   #missedAttacks = [];
   #ships = [];
 
-  // /**
-  //  * Initializes a new Gameboard instance.
-  //  * @param {number} size
-  //  */
   constructor(size = BOARD_SIZE) {
     this.#size = size;
-
     this.#grid = new Array(size * size).fill(null);
   }
 
   #coordsToIndex(x, y) {
-    // check boundries 0-9
     if (x < 0 || x >= this.#size || y < 0 || y >= this.#size) {
-      return -1; // -1 = error
+      return -1;
     }
-    // changes x,y to --> a number/index from 1-100
-    // helps us get the exact index
     return y * this.#size + x;
   }
 
@@ -40,14 +32,9 @@ class Gameboard {
         y = startY + i;
       }
 
-      // entering a loop
-      // checking every x / y
-      // in order to check if out of bound or not
       const index = this.#coordsToIndex(x, y);
 
-      // 2 errors option:
-      // 1) no from 0-9 so returns -1
-      // 2) the cell isn't null - so isn't availble for placement
+      // אם מחוץ לגבולות (-1) או התא כבר תפוס (אינו null)
       if (index === -1 || this.#grid[index] !== null) {
         return false; // Invalid placement
       }
@@ -66,15 +53,12 @@ class Gameboard {
 
       const index = this.#coordsToIndex(x, y);
 
-      // here: we're replacing NULL val with new ship obj
-      // inside every valid cell we save the relevant ship object
       this.#grid[index] = {
         ship: ship,
-        // the index says which part of the ship
         index: i,
+        wasHit: false, // 🔥 התיקון: מאתחלים את מצב הפגיעה
       };
     }
-    // outside the loop we insert the ship for inspection
     this.#ships.push(ship);
     return true; // Placement successful
   }
@@ -83,26 +67,24 @@ class Gameboard {
     const index = this.#coordsToIndex(x, y);
 
     if (index === -1) {
-      return false;
+      return false; // מחוץ לגבולות
     }
 
     const cell = this.#grid[index];
 
-    // Check if shot is illegal
-    // (already hit or already missed)
+    // בדיקה אם המהלך לא חוקי (כבר נפגע או כבר החטאה)
+    // הערה: בדיקת cell.wasHit תעבוד רק אם היא אותחלה ב-placeShip!
     if (cell === "miss" || (cell !== null && cell.wasHit)) {
       return false;
     }
 
-    // if cell isn't empty
-    // if cell has ship inside
     if (cell && cell.ship) {
-      // HIT SCENARIO: Call the ship's public method
+      // HIT SCENARIO
       cell.ship.hit();
       cell.wasHit = true;
       return true;
     } else {
-      // MISS SCENARIO: Mark the cell and record the coordinates
+      // MISS SCENARIO
       this.#grid[index] = "miss";
       this.#missedAttacks.push({ x, y });
       return true;
@@ -110,12 +92,10 @@ class Gameboard {
   }
 
   allShipsSunk() {
-    // Check if any ships exist AND if ALL of them are sunk using Array.every()
     return this.#ships.length > 0 && this.#ships.every((ship) => ship.isSunk());
   }
 
-  // --- Public Getters (Necessary for Testing and UI) ---
-
+  // --- Public Getters ---
   getGrid() {
     return this.#grid;
   }
@@ -124,13 +104,15 @@ class Gameboard {
     return this.#missedAttacks;
   }
 
-  // Expose the helper for external use (like in tests or the UI module)
   coordsToIndex(x, y) {
     return this.#coordsToIndex(x, y);
   }
 
   getShips() {
     return this.#ships;
+  }
+  get boardSize() {
+    return this.#size;
   }
 }
 

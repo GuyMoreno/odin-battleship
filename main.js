@@ -29,8 +29,9 @@ export function setupGame() {
   const playerHuman = new Player(false);
   const playerComputer = new Player(true);
 
-  placePresetShips(playerHuman, PRESET_PLACEMENTS);
-  placePresetShips(playerComputer, PRESET_PLACEMENTS);
+  // 🔥 שימוש בפונקציית האקראיות החדשה:
+  placeShipsRandomly(playerHuman.gameboard);
+  placeShipsRandomly(playerComputer.gameboard);
 
   const currentPlayer = playerHuman;
 
@@ -72,4 +73,40 @@ export function playTurn(gameState, x = null, y = null) {
         : "Computer"
       : null,
   };
+}
+
+// main.js - הוסף את הקוד הזה למעלה או למטה
+// בהנחה ש-Gameboard.placeShip יודע להתמודד עם ניסיונות מיקום לא חוקיים.
+
+function placeShipsRandomly(board) {
+  // 🔥 התיקון: חילוץ האורך מתוך האובייקט
+  // STANDARD_FLEET_SIZES הוא מערך של אובייקטים: [{ length: 5 }, { length: 4 }, ...]
+  const fleet = STANDARD_FLEET_SIZES.map(
+    (shipData) => new Ship(shipData.length)
+  );
+
+  const boardSize = board.boardSize;
+
+  fleet.forEach((ship) => {
+    let placed = false;
+    let attempts = 0;
+    const MAX_ATTEMPTS = 1000;
+
+    while (!placed && attempts < MAX_ATTEMPTS) {
+      const x = Math.floor(Math.random() * boardSize);
+      const y = Math.floor(Math.random() * boardSize);
+      const orientation = Math.random() < 0.5 ? "horizontal" : "vertical";
+
+      if (board.placeShip(ship, x, y, orientation)) {
+        placed = true;
+      }
+      attempts++;
+    }
+
+    if (!placed) {
+      console.error(
+        `Placement FAILED for ship of length ${ship.length} after ${MAX_ATTEMPTS} attempts.`
+      );
+    }
+  });
 }

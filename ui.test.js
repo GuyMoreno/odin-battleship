@@ -1,7 +1,7 @@
 // ui.test.js
 
 import { setupGame } from "./main.js";
-import { renderBoard } from "./ui.js"; // מייבאים מהקובץ המאוחד
+import { renderBoard } from "./ui.js";
 import Gameboard from "./Gameboard.js";
 
 describe("UI Rendering Full Status TDD", () => {
