@@ -13,6 +13,7 @@ class Gameboard {
     this.#grid = new Array(size * size).fill(null);
   }
 
+  // Private helper to convert coordinates to a flat array index
   #coordsToIndex(x, y) {
     if (x < 0 || x >= this.#size || y < 0 || y >= this.#size) {
       return -1;
@@ -34,7 +35,7 @@ class Gameboard {
 
       const index = this.#coordsToIndex(x, y);
 
-      // אם מחוץ לגבולות (-1) או התא כבר תפוס (אינו null)
+      // If out of bounds (-1) or cell is already occupied (is not null)
       if (index === -1 || this.#grid[index] !== null) {
         return false; // Invalid placement
       }
@@ -53,10 +54,7 @@ class Gameboard {
 
       const index = this.#coordsToIndex(x, y);
 
-      // pass all the test
-      // so replace NULL with ship
-      // inside the cell:
-      // object with 3 fields
+      // Pass all tests, so replace NULL with ship object
       this.#grid[index] = {
         ship: ship,
         index: i,
@@ -85,7 +83,7 @@ class Gameboard {
       return false;
     }
 
-    // hit senario
+    // hit scenario
     if (cell && cell.ship) {
       cell.ship.hit();
       cell.wasHit = true;
@@ -99,9 +97,7 @@ class Gameboard {
   }
 
   allShipsSunk() {
-    // check if there is at least one ship
-    // and if all ships are sunk
-
+    // returns true if all ships have been sunk
     return this.#ships.length > 0 && this.#ships.every((ship) => ship.isSunk());
   }
 
@@ -114,6 +110,7 @@ class Gameboard {
     return this.#missedAttacks;
   }
 
+  // Exposed helper for the UI module (for hover preview)
   coordsToIndex(x, y) {
     return this.#coordsToIndex(x, y);
   }
@@ -124,6 +121,21 @@ class Gameboard {
   get boardSize() {
     return this.#size;
   }
+}
+
+// ---------------------------------------------------
+// 🔥 EXPORTED FUNCTION REQUIRED BY main.js
+// ---------------------------------------------------
+
+/**
+ * Checks if the game is over by verifying if all ships on the player's board are sunk.
+ * The player object passed here should be the 'enemy' from the perspective of the attacker.
+ * @param {Player} player The player object whose board needs checking.
+ * @returns {boolean} True if all ships are sunk, meaning the game is over.
+ */
+export function checkGameOver(player) {
+  // Since player is the enemy, we check if all their ships are sunk.
+  return player.gameboard.allShipsSunk();
 }
 
 export default Gameboard;

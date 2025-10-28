@@ -1,62 +1,40 @@
 import Player from "./Player.js";
-import { STANDARD_FLEET_SIZES } from "./constants.js"; // גדלי הספינות שקבענו
+import { STANDARD_FLEET_SIZES } from "./constants.js";
 import Ship from "./Ship.js";
+// 🔥 הוספת ייבוא הפונקציה checkGameOver לפתרון השגיאה
+import { checkGameOver } from "./Gameboard.js";
 
-const PRESET_PLACEMENTS = [
-  // Carrier (5)
-  { length: 5, x: 0, y: 0, orientation: "horizontal" },
-  // Battleship (4)
-  { length: 4, x: 0, y: 2, orientation: "horizontal" },
-  // Cruiser (3)
-  { length: 3, x: 0, y: 4, orientation: "horizontal" },
-  // Submarine (3)
-  { length: 3, x: 9, y: 0, orientation: "vertical" },
-  // Destroyer (2)
-  { length: 2, x: 7, y: 9, orientation: "horizontal" },
-];
-
-function placePresetShips(player, placements) {
-  const board = player.gameboard;
-
-  placements.forEach((data) => {
-    const newShip = new Ship(data.length);
-
-    board.placeShip(newShip, data.x, data.y, data.orientation);
-  });
-}
-
-// run once function to setup game with preset placements
-// the export enables UI module to import and use it
+// run once function to setup game with manual placement state
 export function setupGame() {
   const playerHuman = new Player(false);
   const playerComputer = new Player(true);
 
-  placeShipsRandomly(playerHuman.gameboard);
+  // מציב ספינות רנדומלית רק עבור המחשב. הלוח האנושי נשאר ריק למיקום ידני.
   placeShipsRandomly(playerComputer.gameboard);
 
   const currentPlayer = playerHuman;
 
-  // returning game state object
-  // why? for the UI to easily access and update game state
   return {
     playerHuman,
     playerComputer,
     currentPlayer,
+    gameOver: false,
+    winner: null,
+
+    // הסטייט להתחלה במצב מיקום ידני
+    isPlacingShips: true,
+    placementShipIndex: 0,
+    placementOrientation: "horizontal",
+    STANDARD_FLEET_SIZES: STANDARD_FLEET_SIZES,
   };
 }
-
-function checkGameOver(player) {
-  return player.gameboard.allShipsSunk();
-}
-
 
 // manage a single turn for either player
 // gets: game state object, x and y coordinates (if human)
 export function playTurn(gameState, x = null, y = null) {
   // destructure game state from the object
-  // to easily access players and current player
   const { playerHuman, playerComputer, currentPlayer } = gameState;
-  
+
   // Who is the enemy?
   const enemy = currentPlayer === playerHuman ? playerComputer : playerHuman;
 
@@ -72,8 +50,10 @@ export function playTurn(gameState, x = null, y = null) {
     currentPlayer.randomAttack(enemy.gameboard);
   }
 
-  const nextPlayer = enemy;
+  // הפונקציה מיובאת כעת וניתן להשתמש בה
   const isGameOver = checkGameOver(enemy);
+
+  const nextPlayer = enemy;
 
   return {
     ...gameState,

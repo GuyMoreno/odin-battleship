@@ -98,3 +98,15 @@ h2 {
 .computer-board-section .board.active .cell:not(.miss):not(.hit-ship):hover {
   background-color: #90ee90;
 }
+
+.cell.preview-ship {
+  background-color: lightgray; /* צבע אפור בהיר לתצוגה מקדימה */
+  border: 1px dashed gray; /* גבול מקווקו */
+  opacity: 0.7; /* שקיפות קלה */
+}
+
+.cell.invalid-preview {
+  background-color: rgb(255, 100, 100); /* צבע אדום למיקום לא חוקי */
+  border: 1px dashed darkred;
+  opacity: 0.7;
+}

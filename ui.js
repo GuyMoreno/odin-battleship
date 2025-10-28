@@ -74,27 +74,161 @@ export function renderBoard(containerElement, grid, type) {
 }
 
 // gets 2 parameters:
-// the computer board element
-// function to handle the turn
-export function attachCellListeners(computerBoardElement, handleTurn) {
-  // make sure it's the computer board
-  if (computerBoardElement.dataset.type !== "computer") return;
+// the board element
+// function to handle the interaction
+export function attachCellListeners(boardElement, handleClick, handleHover) {
+  // ודא שאין מאזינים קודמים (מונע כפילויות)
+  boardElement.onclick = null;
+  boardElement.onmouseover = null;
+  boardElement.onmouseout = null;
 
-  computerBoardElement.onclick = (event) => {
+  boardElement.onclick = (event) => {
     const target = event.target;
-
     if (!target.classList.contains("cell")) return;
 
-    // prevent clicking on a cell that was already attacked
+    // לוגיקה למניעת קליק חוזר במצב ירי
     if (
-      target.classList.contains("hit-ship") ||
-      target.classList.contains("miss")
-    )
+      (target.classList.contains("hit-ship") ||
+        target.classList.contains("miss")) &&
+      boardElement.dataset.type === "computer"
+    ) {
       return;
+    }
 
     const x = parseInt(target.dataset.x, 10);
     const y = parseInt(target.dataset.y, 10);
-
-    handleTurn(x, y);
+    handleClick(x, y); // קורא ל-handlePlacementClick או handlePlayerTurn
   };
+
+  // הוספת אירועי ריחוף (רק ללוח האנושי)
+  if (handleHover && boardElement.dataset.type === "human") {
+    boardElement.onmouseover = (event) => {
+      const target = event.target;
+      // נבדוק שמרחפים מעל תא ולא מעל הלוח עצמו
+      if (!target.classList.contains("cell")) return;
+      const x = parseInt(target.dataset.x, 10);
+      const y = parseInt(target.dataset.y, 10);
+      handleHover(x, y, true); // isEntering = true
+    };
+
+    boardElement.onmouseout = (event) => {
+      const target = event.target;
+      if (!target.classList.contains("cell")) return;
+      const x = parseInt(target.dataset.x, 10);
+      const y = parseInt(target.dataset.y, 10);
+      handleHover(x, y, false); // isEntering = false
+    };
+  }
+}
+
+export function renderPlacementPreview(
+  gameboard,
+  ship,
+  startX,
+  startY,
+  orientation,
+  isEntering
+) {
+  if (!isEntering) {
+    return;
+  }
+
+  // נניח ש-gameboard עבר, ויש לו boardSize (מגיע מ-Gameboard.js)
+  const boardSize = gameboard.boardSize;
+  const humanBoardElement = document
+    .getElementById("human-board-container")
+    .querySelector(".board");
+  if (!humanBoardElement) return;
+
+  let isValidPlacement = true; // נניח שהמיקום חוקי
+
+  for (let i = 0; i < ship.length; i++) {
+    let x = startX;
+    let y = startY;
+
+    if (orientation === "horizontal") {
+      x = startX + i;
+    } else if (orientation === "vertical") {
+      y = startY + i;
+    }
+
+    // בדיקה גסה של גבולות
+    if (x < 0 || x >= boardSize || y < 0 || y >= boardSize) {
+      isValidPlacement = false; // מחוץ לגבולות
+      // 🔥 הוסר ה-break - ממשיכים לבדוק כדי שנסמן גם תאים לא חוקיים שיצאו מהגבול
+    }
+
+    // נמשיך רק אם לא יצאנו מגבולות הלוח בבדיקה הנוכחית
+    if (x >= 0 && x < boardSize && y >= 0 && y < boardSize) {
+      // השתמש ב-coordsToIndex מ-Gameboard (חייב להיות ציבורי)
+      const index = gameboard.coordsToIndex(x, y);
+
+      // בדיקה אם התא כבר תפוס על ידי ספינה קיימת
+      const cellData = gameboard.getGrid()[index];
+      if (cellData && cellData.ship) {
+        isValidPlacement = false; // תא תפוס
+      }
+    }
+  }
+
+  // עכשיו נסמן את התאים על הלוח
+  for (let i = 0; i < ship.length; i++) {
+    let x = startX;
+    let y = startY;
+
+    if (orientation === "horizontal") {
+      x = startX + i;
+    } else if (orientation === "vertical") {
+      y = startY + i;
+    }
+
+    // ודא שהקואורדינטות בתוך הטווח לפני שמנסים למצוא תא
+    if (x < 0 || x >= boardSize || y < 0 || y >= boardSize) {
+      continue; // דלג על תאים שמחוץ לגבולות
+    }
+
+    const cell = humanBoardElement.querySelector(
+      `[data-x="${x}"][data-y="${y}"]`
+    );
+    if (cell) {
+      if (isValidPlacement) {
+        cell.classList.add("preview-ship");
+      } else {
+        cell.classList.add("invalid-preview");
+      }
+    }
+  }
+}
+
+// ------------------------------------------------------------------
+
+// 🔥 הוספת הפונקציה החסרה לרינדור כפתור הסיבוב
+export function renderPlacementControls(container, orientation, toggleHandler) {
+  container.innerHTML = "";
+
+  const orientationEmoji = orientation === "horizontal" ? "↔️" : "↕️";
+
+  const button = document.createElement("button");
+  button.id = "toggle-orientation";
+
+  // רק אימוג'י כיוון + אימוג'י סיבוב
+  button.textContent = `${orientationEmoji} 🔄`;
+
+  button.onclick = toggleHandler;
+
+  container.appendChild(button);
+}
+
+export function clearPreview(containerId = "human-board-container") {
+  const humanBoardElement = document
+    .getElementById(containerId)
+    .querySelector(".board");
+  if (humanBoardElement) {
+    // מנקה את שני סוגי ה-preview (חוקי ולא חוקי)
+    humanBoardElement
+      .querySelectorAll(".cell.preview-ship, .cell.invalid-preview")
+      .forEach((cell) => {
+        cell.classList.remove("preview-ship", "invalid-preview");
+      });
+  }
 }
