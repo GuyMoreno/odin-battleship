@@ -53,38 +53,45 @@ class Gameboard {
 
       const index = this.#coordsToIndex(x, y);
 
+      // pass all the test
+      // so replace NULL with ship
+      // inside the cell:
+      // object with 3 fields
       this.#grid[index] = {
         ship: ship,
         index: i,
-        wasHit: false, // 🔥 התיקון: מאתחלים את מצב הפגיעה
+        wasHit: false,
       };
     }
     this.#ships.push(ship);
-    return true; // Placement successful
+    return true;
   }
 
   receiveAttack(x, y) {
+    // change coords to index
     const index = this.#coordsToIndex(x, y);
 
+    // check if index is valid
     if (index === -1) {
-      return false; // מחוץ לגבולות
+      return false;
     }
 
+    // get the cell
     const cell = this.#grid[index];
 
-    // בדיקה אם המהלך לא חוקי (כבר נפגע או כבר החטאה)
-    // הערה: בדיקת cell.wasHit תעבוד רק אם היא אותחלה ב-placeShip!
+    // if cell is "miss" or already hit
+    // return false
     if (cell === "miss" || (cell !== null && cell.wasHit)) {
       return false;
     }
 
+    // hit senario
     if (cell && cell.ship) {
-      // HIT SCENARIO
       cell.ship.hit();
       cell.wasHit = true;
       return true;
+      // else - miss scenario
     } else {
-      // MISS SCENARIO
       this.#grid[index] = "miss";
       this.#missedAttacks.push({ x, y });
       return true;
@@ -92,6 +99,9 @@ class Gameboard {
   }
 
   allShipsSunk() {
+    // check if there is at least one ship
+    // and if all ships are sunk
+
     return this.#ships.length > 0 && this.#ships.every((ship) => ship.isSunk());
   }
 

@@ -6,7 +6,9 @@ class Ship {
   }
 
   hit() {
-    this.#hits += 1;
+    if (this.#hits < this.#length) {
+      this.#hits += 1;
+    }
   }
 
   // 💡 Added: A public getter for testing and potential future UI display

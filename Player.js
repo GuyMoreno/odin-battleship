@@ -5,17 +5,22 @@ class Player {
   #gameboard;
   // true/false
   #isComputer;
+  // array of objects with x,y coords
+  // to keep track of shots taken of computer player
   #shotsTaken = [];
 
   constructor(isComputer = false) {
+    // each player has their own gameboard
     this.#gameboard = new Gameboard(BOARD_SIZE);
     this.#isComputer = isComputer;
   }
 
+  // human player attacks at given x,y
   attack(enemyBoard, x, y) {
     return enemyBoard.receiveAttack(x, y);
   }
 
+  // computer player attacks randomly
   randomAttack(enemyBoard) {
     let x, y;
     let attackSuccess = false;
@@ -33,11 +38,16 @@ class Player {
 
         this.#shotsTaken.push({ x, y });
 
+        // return the coords of the successful attack
+        // for possible UI use
         return { x, y };
       }
     }
   }
 
+  // getter for gameboard
+  // to allow access from outside
+  // for updating UI
   get gameboard() {
     return this.#gameboard;
   }

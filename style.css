@@ -14,7 +14,7 @@ h1 {
 }
 
 #message {
-  font-size: 1.2em;
+  font-size: 1.5em;
   font-weight: bold;
   margin: 20px 0;
   color: #007bff;
@@ -40,7 +40,7 @@ h2 {
   margin-bottom: 15px;
 }
 
-/* -------------------- עיצוב ה-GRID של הלוח -------------------- */
+/* -------------------- the grid -------------------- */
 
 .board {
   display: grid;
@@ -59,7 +59,7 @@ h2 {
   justify-content: center;
   align-items: center;
   transition: background-color 0.2s;
-  cursor: default;
+  cursor: pointer;
 }
 
 /* -------------------- עיצוב הסטטוסים -------------------- */
@@ -89,7 +89,6 @@ h2 {
   content: "💥";
   font-size: 1.5em;
 }
-
 
 .computer-board-section .board.active {
   cursor: crosshair;

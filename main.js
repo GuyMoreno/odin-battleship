@@ -25,16 +25,19 @@ function placePresetShips(player, placements) {
   });
 }
 
+// run once function to setup game with preset placements
+// the export enables UI module to import and use it
 export function setupGame() {
   const playerHuman = new Player(false);
   const playerComputer = new Player(true);
 
-  // 🔥 שימוש בפונקציית האקראיות החדשה:
   placeShipsRandomly(playerHuman.gameboard);
   placeShipsRandomly(playerComputer.gameboard);
 
   const currentPlayer = playerHuman;
 
+  // returning game state object
+  // why? for the UI to easily access and update game state
   return {
     playerHuman,
     playerComputer,
@@ -46,8 +49,15 @@ function checkGameOver(player) {
   return player.gameboard.allShipsSunk();
 }
 
+
+// manage a single turn for either player
+// gets: game state object, x and y coordinates (if human)
 export function playTurn(gameState, x = null, y = null) {
+  // destructure game state from the object
+  // to easily access players and current player
   const { playerHuman, playerComputer, currentPlayer } = gameState;
+  
+  // Who is the enemy?
   const enemy = currentPlayer === playerHuman ? playerComputer : playerHuman;
 
   if (gameState.gameOver) {
@@ -55,8 +65,10 @@ export function playTurn(gameState, x = null, y = null) {
   }
 
   if (currentPlayer === playerHuman) {
+    // human player attack with given coordinates
     currentPlayer.attack(enemy.gameboard, x, y);
   } else {
+    // computer player attack randomly
     currentPlayer.randomAttack(enemy.gameboard);
   }
 
@@ -75,12 +87,7 @@ export function playTurn(gameState, x = null, y = null) {
   };
 }
 
-// main.js - הוסף את הקוד הזה למעלה או למטה
-// בהנחה ש-Gameboard.placeShip יודע להתמודד עם ניסיונות מיקום לא חוקיים.
-
 function placeShipsRandomly(board) {
-  // 🔥 התיקון: חילוץ האורך מתוך האובייקט
-  // STANDARD_FLEET_SIZES הוא מערך של אובייקטים: [{ length: 5 }, { length: 4 }, ...]
   const fleet = STANDARD_FLEET_SIZES.map(
     (shipData) => new Ship(shipData.length)
   );
