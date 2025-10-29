@@ -1,7 +1,7 @@
 import Player from "./Player.js";
 import { STANDARD_FLEET_SIZES } from "./constants.js";
 import Ship from "./Ship.js";
-// 🔥 הוספת ייבוא הפונקציה checkGameOver לפתרון השגיאה
+
 import { checkGameOver } from "./Gameboard.js";
 
 // run once function to setup game with manual placement state
@@ -9,10 +9,12 @@ export function setupGame() {
   const playerHuman = new Player(false);
   const playerComputer = new Player(true);
 
-  // מציב ספינות רנדומלית רק עבור המחשב. הלוח האנושי נשאר ריק למיקום ידני.
   placeShipsRandomly(playerComputer.gameboard);
 
   const currentPlayer = playerHuman;
+
+  // return the initial game state object
+  // in order to manage turns and game progress
 
   return {
     playerHuman,
@@ -20,8 +22,6 @@ export function setupGame() {
     currentPlayer,
     gameOver: false,
     winner: null,
-
-    // הסטייט להתחלה במצב מיקום ידני
     isPlacingShips: true,
     placementShipIndex: 0,
     placementOrientation: "horizontal",
@@ -50,11 +50,12 @@ export function playTurn(gameState, x = null, y = null) {
     currentPlayer.randomAttack(enemy.gameboard);
   }
 
-  // הפונקציה מיובאת כעת וניתן להשתמש בה
   const isGameOver = checkGameOver(enemy);
 
   const nextPlayer = enemy;
 
+  // the function returns the updated game state object
+  // copy the previous state and update necessary fields
   return {
     ...gameState,
     currentPlayer: nextPlayer,
@@ -80,6 +81,7 @@ function placeShipsRandomly(board) {
     const MAX_ATTEMPTS = 1000;
 
     while (!placed && attempts < MAX_ATTEMPTS) {
+      // create random x, y, orientation
       const x = Math.floor(Math.random() * boardSize);
       const y = Math.floor(Math.random() * boardSize);
       const orientation = Math.random() < 0.5 ? "horizontal" : "vertical";

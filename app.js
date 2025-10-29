@@ -3,14 +3,13 @@ import {
   renderBoard,
   attachCellListeners,
   renderPlacementControls,
-  clearPreview, // מיובא כעת מ-ui.js
-  renderPlacementPreview, // מיובא מ-ui.js עבור ריחוף
+  clearPreview,
+  renderPlacementPreview,
 } from "./ui.js";
 import Ship from "./Ship.js";
 
 let gameState = null;
 
-// פונקציה 1: שינוי כיוון הספינה
 function togglePlacementOrientation() {
   const current = gameState.placementOrientation;
   gameState.placementOrientation =
@@ -18,7 +17,6 @@ function togglePlacementOrientation() {
   updateUI();
 }
 
-// פונקציה 2: טיפול בריחוף (מציג תצוגה מקדימה)
 function handleCellHover(x, y, isEntering) {
   const {
     playerHuman,
@@ -28,13 +26,13 @@ function handleCellHover(x, y, isEntering) {
     isPlacingShips,
   } = gameState;
 
-  if (!isPlacingShips) return; // רק אם אנו במצב מיקום
+  if (!isPlacingShips) return;
 
-  clearPreview(); // ניקוי הריחוף הקודם (מיובא מ-ui.js)
+  clearPreview();
 
   if (isEntering) {
     const shipLength = STANDARD_FLEET_SIZES[placementShipIndex].length;
-    const currentShip = new Ship(shipLength); // יוצרים ספינה זמנית לבדיקה
+    const currentShip = new Ship(shipLength);
 
     renderPlacementPreview(
       playerHuman.gameboard,
@@ -47,7 +45,6 @@ function handleCellHover(x, y, isEntering) {
   }
 }
 
-// פונקציה 3: טיפול בקליק על הלוח האנושי (מיקום)
 function handlePlacementClick(x, y) {
   const {
     playerHuman,
@@ -56,11 +53,9 @@ function handlePlacementClick(x, y) {
     placementOrientation,
   } = gameState;
 
-  // יצירת מופע חדש של ספינה
   const shipLength = STANDARD_FLEET_SIZES[placementShipIndex].length;
   const shipToPlace = new Ship(shipLength);
 
-  // ניסיון מיקום על לוח המשחק האנושי
   const placementSuccessful = playerHuman.gameboard.placeShip(
     shipToPlace,
     x,
@@ -70,23 +65,20 @@ function handlePlacementClick(x, y) {
 
   if (placementSuccessful) {
     const nextIndex = placementShipIndex + 1;
-    clearPreview(); // ננקה את ה-preview לאחר מיקום מוצלח
+    clearPreview();
 
-    // בדיקה אם כל הספינות מוקמו
     if (nextIndex >= STANDARD_FLEET_SIZES.length) {
-      gameState.isPlacingShips = false; // מעבר למצב משחק רגיל
+      gameState.isPlacingShips = false;
     } else {
-      gameState.placementShipIndex = nextIndex; // מעבר לספינה הבאה
+      gameState.placementShipIndex = nextIndex;
     }
 
     updateUI();
   } else {
-    // המיקום נכשל
     console.log("Invalid placement. Try again.");
   }
 }
 
-// פונקציה 4: עדכון ה-UI (כולל טיפול במצב מיקום)
 function updateUI() {
   const {
     playerHuman,
@@ -112,9 +104,8 @@ function updateUI() {
   const humanBoardElement = humanContainer.querySelector(".board");
 
   computerBoardElement.onclick = null;
-  controlsContainer.innerHTML = ""; // מנקה את קונטיינר הכפתורים בכל רענון
+  controlsContainer.innerHTML = "";
 
-  // 🔥 לוגיקה חדשה: מצב מיקום
   if (isPlacingShips) {
     humanBoardElement.classList.add("active");
     computerBoardElement.classList.remove("active");
@@ -122,7 +113,6 @@ function updateUI() {
     const currentShipData = STANDARD_FLEET_SIZES[gameState.placementShipIndex];
     messageElement.textContent = `Place the ${currentShipData.name} (Length ${currentShipData.length}). Orientation: ${gameState.placementOrientation}`;
 
-    // 🔥 חיבור ה-handleCellHover עבור תצוגה מקדימה
     attachCellListeners(
       humanBoardElement,
       handlePlacementClick,
@@ -134,10 +124,7 @@ function updateUI() {
       gameState.placementOrientation,
       togglePlacementOrientation
     );
-  }
-
-  // לוגיקת משחק רגיל (פועלת רק כש-isPlacingShips=false)
-  else if (currentPlayer === playerHuman && !gameOver) {
+  } else if (currentPlayer === playerHuman && !gameOver) {
     humanBoardElement.classList.remove("active");
     computerBoardElement.classList.add("active");
     attachCellListeners(computerBoardElement, handlePlayerTurn); // אין handleHover במצב ירי

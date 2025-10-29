@@ -11,10 +11,11 @@ class Ship {
     }
   }
 
-  // 💡 Added: A public getter for testing and potential future UI display
+  // for testing and potential future UI display
   getHits() {
     return this.#hits;
   }
+  
   get length() {
     return this.#length;
   }

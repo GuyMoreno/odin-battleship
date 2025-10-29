@@ -26,6 +26,7 @@ function getCellStatus(cellData, boardType) {
 // all the cells
 
 // the func gets: div, grid data, and type of board
+
 export function renderBoard(containerElement, grid, type) {
   // check if board already exists
   let board = containerElement.querySelector(".board");
@@ -55,6 +56,7 @@ export function renderBoard(containerElement, grid, type) {
 
     // set data attributes for x, y, and index
     // for future reference to identify the cell
+    // these lines connects the cell data to the ui element
     cell.dataset.x = x;
     cell.dataset.y = y;
     cell.dataset.index = i;
@@ -77,16 +79,16 @@ export function renderBoard(containerElement, grid, type) {
 // the board element
 // function to handle the interaction
 export function attachCellListeners(boardElement, handleClick, handleHover) {
-  // ודא שאין מאזינים קודמים (מונע כפילויות)
   boardElement.onclick = null;
   boardElement.onmouseover = null;
   boardElement.onmouseout = null;
 
   boardElement.onclick = (event) => {
     const target = event.target;
+    // if we are not clicking on a cell, ignore
     if (!target.classList.contains("cell")) return;
 
-    // לוגיקה למניעת קליק חוזר במצב ירי
+    // if cell is already hit or missed on computer board, ignore
     if (
       (target.classList.contains("hit-ship") ||
         target.classList.contains("miss")) &&
@@ -95,16 +97,18 @@ export function attachCellListeners(boardElement, handleClick, handleHover) {
       return;
     }
 
+    // get x and y from data attributes in order to identify the cell
     const x = parseInt(target.dataset.x, 10);
     const y = parseInt(target.dataset.y, 10);
-    handleClick(x, y); // קורא ל-handlePlacementClick או handlePlayerTurn
+    handleClick(x, y);
   };
 
-  // הוספת אירועי ריחוף (רק ללוח האנושי)
+  // Hover handling for ship placement preview on human board
   if (handleHover && boardElement.dataset.type === "human") {
     boardElement.onmouseover = (event) => {
       const target = event.target;
-      // נבדוק שמרחפים מעל תא ולא מעל הלוח עצמו
+
+      // if we are not hovering on a cell, ignore
       if (!target.classList.contains("cell")) return;
       const x = parseInt(target.dataset.x, 10);
       const y = parseInt(target.dataset.y, 10);
@@ -133,7 +137,6 @@ export function renderPlacementPreview(
     return;
   }
 
-  // נניח ש-gameboard עבר, ויש לו boardSize (מגיע מ-Gameboard.js)
   const boardSize = gameboard.boardSize;
   const humanBoardElement = document
     .getElementById("human-board-container")
@@ -155,15 +158,12 @@ export function renderPlacementPreview(
     // בדיקה גסה של גבולות
     if (x < 0 || x >= boardSize || y < 0 || y >= boardSize) {
       isValidPlacement = false; // מחוץ לגבולות
-      // 🔥 הוסר ה-break - ממשיכים לבדוק כדי שנסמן גם תאים לא חוקיים שיצאו מהגבול
     }
 
-    // נמשיך רק אם לא יצאנו מגבולות הלוח בבדיקה הנוכחית
     if (x >= 0 && x < boardSize && y >= 0 && y < boardSize) {
-      // השתמש ב-coordsToIndex מ-Gameboard (חייב להיות ציבורי)
+
       const index = gameboard.coordsToIndex(x, y);
 
-      // בדיקה אם התא כבר תפוס על ידי ספינה קיימת
       const cellData = gameboard.getGrid()[index];
       if (cellData && cellData.ship) {
         isValidPlacement = false; // תא תפוס
@@ -171,7 +171,6 @@ export function renderPlacementPreview(
     }
   }
 
-  // עכשיו נסמן את התאים על הלוח
   for (let i = 0; i < ship.length; i++) {
     let x = startX;
     let y = startY;
@@ -182,9 +181,8 @@ export function renderPlacementPreview(
       y = startY + i;
     }
 
-    // ודא שהקואורדינטות בתוך הטווח לפני שמנסים למצוא תא
     if (x < 0 || x >= boardSize || y < 0 || y >= boardSize) {
-      continue; // דלג על תאים שמחוץ לגבולות
+      continue;
     }
 
     const cell = humanBoardElement.querySelector(
@@ -200,9 +198,6 @@ export function renderPlacementPreview(
   }
 }
 
-// ------------------------------------------------------------------
-
-// 🔥 הוספת הפונקציה החסרה לרינדור כפתור הסיבוב
 export function renderPlacementControls(container, orientation, toggleHandler) {
   container.innerHTML = "";
 
@@ -211,7 +206,6 @@ export function renderPlacementControls(container, orientation, toggleHandler) {
   const button = document.createElement("button");
   button.id = "toggle-orientation";
 
-  // רק אימוג'י כיוון + אימוג'י סיבוב
   button.textContent = `${orientationEmoji} 🔄`;
 
   button.onclick = toggleHandler;
@@ -224,7 +218,6 @@ export function clearPreview(containerId = "human-board-container") {
     .getElementById(containerId)
     .querySelector(".board");
   if (humanBoardElement) {
-    // מנקה את שני סוגי ה-preview (חוקי ולא חוקי)
     humanBoardElement
       .querySelectorAll(".cell.preview-ship, .cell.invalid-preview")
       .forEach((cell) => {

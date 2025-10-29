@@ -4,12 +4,19 @@ import { BOARD_SIZE } from "./constants.js";
 class Gameboard {
   // Private fields (encapsulation)
   #size;
+  // private grid represented as a flat array
+  // will pupulate 100 cells with null initially
+  // later cells can hold ship objects or "miss" strings
+  // each cell can also hold an object with ship reference and hit status
   #grid;
+  // array to hold missed attacks in order to render them later
   #missedAttacks = [];
+  // array to hold placed ships
   #ships = [];
 
   constructor(size = BOARD_SIZE) {
     this.#size = size;
+    // we start with an empty grid of nulls
     this.#grid = new Array(size * size).fill(null);
   }
 
@@ -21,8 +28,11 @@ class Gameboard {
     return y * this.#size + x;
   }
 
+  // funct that tries to place a ship on the board
   placeShip(ship, startX, startY, orientation) {
     // 1. Validation Check (pre-flight check)
+    // loop through every part of the ship
+    // and check if placement is valid..
     for (let i = 0; i < ship.length; i++) {
       let x = startX;
       let y = startY;
@@ -54,7 +64,8 @@ class Gameboard {
 
       const index = this.#coordsToIndex(x, y);
 
-      // Pass all tests, so replace NULL with ship object
+      // if we reach here, we can safely place the ship part
+      //Replace NULL with ship object
       this.#grid[index] = {
         ship: ship,
         index: i,
@@ -84,6 +95,7 @@ class Gameboard {
     }
 
     // hit scenario
+    // if cell isn't null and has a ship
     if (cell && cell.ship) {
       cell.ship.hit();
       cell.wasHit = true;
@@ -91,6 +103,7 @@ class Gameboard {
       // else - miss scenario
     } else {
       this.#grid[index] = "miss";
+      // save missed attack coords for rendering later
       this.#missedAttacks.push({ x, y });
       return true;
     }
