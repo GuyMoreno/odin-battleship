@@ -161,7 +161,6 @@ export function renderPlacementPreview(
     }
 
     if (x >= 0 && x < boardSize && y >= 0 && y < boardSize) {
-
       const index = gameboard.coordsToIndex(x, y);
 
       const cellData = gameboard.getGrid()[index];

@@ -1,112 +1,152 @@
+:root {
+  --bg-page: #f5f5f5;
+  --text-primary: #222;
+  --text-secondary: #555;
+  --highlight: #0d6efd;
+  --board-bg: #fff;
+  --cell-size: 44px;
+  --cell-radius: 15px;
+  --cell-bg: #eaeaea;
+  --hover-color: #c7f0d8;
+  --border-color: #ccc;
+  --shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+
+  --ship-color: #999;
+  --miss-color: #ffdca8;
+  --hit-color: #ff6b6b;
+  --preview-color: #d0d0d0;
+  --invalid-color: #ff9999;
+}
+
 body {
-  font-family: Arial, sans-serif;
+  font-family: "Helvetica Neue", Arial, sans-serif;
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color: #f4f4f4;
-  padding: 20px;
+  justify-content: flex-start;
+  min-height: 100vh;
+  margin: 0;
+  padding: 30px 20px;
+  background-color: var(--bg-page);
+  color: var(--text-primary);
   direction: rtl;
+  line-height: 1.4;
 }
 
 h1 {
-  color: #333;
+  font-weight: 400;
+  font-size: 2em;
+  margin-bottom: 15px;
+}
+
+h2 {
+  font-weight: 400;
+  font-size: 1.2em;
   margin-bottom: 10px;
+  text-align: center;
+  color: var(--text-secondary);
 }
 
 #message {
-  font-size: 1.5em;
-  font-weight: bold;
-  margin: 20px 0;
-  color: #007bff;
+  font-weight: 500;
+  font-size: 1.3em;
+  margin: 15px 0;
+  color: var(--highlight);
+  text-align: center;
 }
 
 .game-area {
   display: flex;
-  gap: 40px;
-  max-width: 1200px;
+  gap: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .player-board-section,
 .computer-board-section {
-  background-color: #fff;
-  padding: 15px;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+  border-radius: 10px;
+  background-color: var(--board-bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: var(--shadow);
 }
-
-h2 {
-  text-align: center;
-  color: #555;
-  margin-bottom: 15px;
-}
-
-/* -------------------- the grid -------------------- */
 
 .board {
   display: grid;
-  grid-template-columns: repeat(10, 40px);
-  grid-template-rows: repeat(10, 40px);
-  border: 3px solid #000;
+  grid-template-columns: repeat(10, var(--cell-size));
+  grid-template-rows: repeat(10, var(--cell-size));
+  gap: 6px;
   margin: 0 auto;
 }
 
 .cell {
-  width: 40px;
-  height: 40px;
-  border: 1px solid #ccc;
-  box-sizing: border-box;
+  width: var(--cell-size);
+  height: var(--cell-size);
+  border-radius: var(--cell-radius);
+  background-color: var(--cell-bg);
   display: flex;
   justify-content: center;
   align-items: center;
-  transition: background-color 0.2s;
+  font-size: 1em;
+  transition: background 0.2s, transform 0.1s;
   cursor: pointer;
 }
 
-/* -------------------- עיצוב הסטטוסים -------------------- */
-
-.empty {
-  background-color: #e6f7ff;
+.cell:hover {
+  transform: scale(1.05);
 }
 
-.ship {
-  background-color: #6c757d;
+/* כל הסטטוסים מאוחדים */
+.cell.empty {
+  background-color: var(--bg-page);
 }
-
-.miss {
-  background-color: #ffc107;
-  font-weight: bold;
+.cell.ship {
+  background-color: var(--ship-color);
 }
-.miss::after {
+.cell.miss {
+  background-color: var(--miss-color);
+}
+.cell.miss::after {
   content: "X";
-  color: #333;
+  font-size: 1.2em;
+  color: #666;
 }
-
-.hit-ship {
-  background-color: #dc3545;
-  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+.cell.hit-ship {
+  background-color: var(--hit-color);
 }
-.hit-ship::after {
+.cell.hit-ship::after {
   content: "💥";
-  font-size: 1.5em;
+  font-size: 1.1em;
 }
-
-.computer-board-section .board.active {
-  cursor: crosshair;
-  border-color: #00a000;
-}
-
-.computer-board-section .board.active .cell:not(.miss):not(.hit-ship):hover {
-  background-color: #90ee90;
-}
-
 .cell.preview-ship {
-  background-color: lightgray; /* צבע אפור בהיר לתצוגה מקדימה */
-  border: 1px dashed gray; /* גבול מקווקו */
-  opacity: 0.7; /* שקיפות קלה */
+  background-color: var(--preview-color);
+  border: 1px dashed #aaa;
+  opacity: 0.6;
+}
+.cell.invalid-preview {
+  background-color: var(--invalid-color);
+  border: 1px dashed #cc0000;
+  opacity: 0.6;
 }
 
-.cell.invalid-preview {
-  background-color: rgb(255, 100, 100); /* צבע אדום למיקום לא חוקי */
-  border: 1px dashed darkred;
-  opacity: 0.7;
+/* hover אחיד ללוח המחשב */
+.computer-board-section .board.active .cell:not(.miss):not(.hit-ship):hover {
+  background-color: var(--hover-color);
+}
+
+#toggle-orientation {
+  background: none;
+  border: 1px solid var(--border-color);
+  margin-bottom: 20px;
+  border-radius: var(--cell-radius);
+  padding: 5px 10px;
+  cursor: pointer;
+  font-size: 1.1em;
+  transition: background 0.2s, border-color 0.2s;
+}
+#toggle-orientation:hover {
+  background: #eee;
+  border-color: #999;
 }
